@@ -1,77 +1,123 @@
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using newbackend.Data;
+using newbackend.Models;
+using newbackend.Services;
 
-namespace backend
+namespace newbackend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class PruductController : ControllerBase
+    public class ProductController : ControllerBase
     {
-        ILogger<PruductController> _logger;
 
-        public PruductController(ILogger<PruductController> logger, DataContext dataContext)
+        ILogger<ProductController> _logger;
+        private readonly IProductRepository productRepository;
+
+        public ProductController(ILogger<ProductController> logger, IProductRepository productRepository)
         {
+            this.productRepository = productRepository;
             _logger = logger;
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult GetProducts()
         {
-            try
+            try //http status code
             {
-                return Ok("tanakorn");
+                return Ok(productRepository.GetProducts()); //status 200 for standard
             }
-            catch (Exception)
+            catch (Exception error)
             {
                 _logger.LogError("Failed to execute GET");
-                return StatusCode(500);
+                return StatusCode(500, new { message = error }); //400 server not connect 500
+            }
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetProductsById(int id)
+        {
+            try //http status code
+            {
+                var result = productRepository.GetProduct(id);
+                if (result == null)
+                {
+                    return NotFound(new { message = "Product not found" });
+                }
+                return Ok(result);
+                //status 200 for standard
+            }
+            catch (Exception error)
+            {
+                _logger.LogError("Failed to execute GET");
+                return StatusCode(500, new { message = error }); //400 server not connect 500
             }
         }
 
         [HttpPost]
-        public IActionResult Post()
+        public IActionResult Post([FromForm] Products product, IFormFile file)
         {
             try
             {
+                productRepository.AddProduct(product, file);
                 return Created("", null);
             }
-            catch (Exception)
+            catch (Exception error)
             {
                 _logger.LogError("Failed to execute POST");
-                return BadRequest();
+                return StatusCode(500, new { message = error }); //400 server not connect 500
             }
         }
 
-        [HttpPut]
-        public IActionResult Put()
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromForm] Products product, IFormFile file)
         {
             try
             {
-                return Ok();
+                var result = productRepository.GetProduct(id);
+                if (result == null)
+                {
+                    return NotFound(new { message = "Product not found" });
+                }
+
+                result.Name = product.Name;
+                result.Price = product.Price;
+                result.Stock = product.Stock;
+
+                productRepository.EditProduct(result, file);
+                return Ok(result);
             }
-            catch (Exception)
+            catch (Exception error)
             {
                 _logger.LogError("Failed to execute PUT");
-                return BadRequest();
+                return StatusCode(500, new { message = error }); //400 server not connect 500
             }
         }
 
-        [HttpDelete]
-        public IActionResult Delete()
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
         {
             try
             {
-                return Ok();
+                var result = productRepository.GetProduct(id);
+                if (result == null)
+                {
+                    return NotFound(new { message = "Product not found" });
+                }
+
+                productRepository.DeleteProduct(result);
+                return NoContent(); // 204 no content
             }
-            catch (Exception)
+            catch (Exception error)
             {
                 _logger.LogError("Failed to execute DELETE");
-                return BadRequest();
+                return StatusCode(500, new { message = error }); //400 server not connect 500
             }
         }
 

@@ -9,7 +9,7 @@ namespace newbackend.Installer
 {
     public class JWTInstaller : IInstaller
     {
-        public void InstallServices(IServiceCollection service, IConfiguration configuration)
+        public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
             var jwtSettings = new JwtSettings();
             configuration.Bind(nameof(jwtSettings), jwtSettings);

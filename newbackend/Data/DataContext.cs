@@ -24,7 +24,7 @@ namespace newbackend.Data
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=192.168.99.100,1112;user id=sa; password=Tel1234!; Database=CMPOS;");
+                optionsBuilder.UseSqlServer("Server=WITTAWAT\\LOCAL2008R2;user id=sa; password=Tel1234!; Database=CMPOS;");
             }
         }
 

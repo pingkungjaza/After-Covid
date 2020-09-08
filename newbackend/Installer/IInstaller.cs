@@ -5,6 +5,6 @@ namespace newbackend.Installer
 {
     public interface IInstaller
     {
-         void InstallServices(IServiceCollection service, IConfiguration configuration);
+         void InstallServices(IServiceCollection services, IConfiguration configuration);
     }
 }
